@@ -1,0 +1,375 @@
+* Python for Data Science
+* Python Data Science Toolbox
+* Importing Data
+* Cleaning Data
+* Pandas
+* Databases
+* Visualization
+* Statistics
+** EDA (Exploratory Data Analysis)
+*** Graphical EDAs
+**** Histograms
+  - Remember to have labels and titles in charts
+  - "Square root rule": choose the number of bins to be the square root of the number of samples
+  - Binning bias: the same data maybe interpreted differently depending on different binnings
+    #+BEGIN_SRC ipython :session :file ~/Dropbox/DataCamp/img/1.png :exports both
+      import numpy as np
+      import pandas as pd
+      import matplotlib.pyplot as plt
+      import seaborn as sns
+      from sklearn.datasets import load_iris
+      %matplotlib inline
+
+      sns.set_style("dark")
+      iris = load_iris()
+      data = pd.DataFrame(iris.data)
+      _ = plt.hist(data.loc[:,1], bins=12)
+      _ = plt.xlabel("petal length (cm)")
+      _ = plt.ylabel("count")
+      _ = plt.title("Versicolor Petal Length")
+  #+END_SRC
+
+  #+RESULTS:
+  [[file:~/Dropbox/DataCamp/img/1.png]]
+
+**** Bee Swarm Plot
+- all data points are plotted
+- requires that the data is in well-organized pandas dataframe
+#+BEGIN_SRC ipython :session :file ~/Dropbox/DataCamp/img/3.png :exports both
+  import numpy as np
+  import pandas as pd
+  import matplotlib.pyplot as plt
+  import seaborn as sns
+  from sklearn.datasets import load_iris
+  %matplotlib inline
+
+  sns.set_style("dark")
+  iris = load_iris()
+  data = pd.DataFrame(iris.data)
+
+  _ = sns.swarmplot(data=data)
+#+END_SRC
+
+#+RESULTS:
+[[file:~/Dropbox/DataCamp/img/3.png]]
+
+**** ECDF (Empirical Cumulative Distribution Functions)
+- x axis is the sorted data
+- y is increment
+#+BEGIN_SRC ipython :session :file ~/Dropbox/DataCamp/img/4.png :exports both
+  # Define ECDF function
+  import numpy as np
+  def ecdf(data):
+
+      n = len(data)
+
+      x = np.sort(data)
+
+      y = np.arange(1, n+1) / n
+
+      return (x, y)
+
+  import pandas as pd
+  import matplotlib.pyplot as plt
+  import seaborn as sns
+  from sklearn.datasets import load_iris
+  %matplotlib inline
+
+  sns.set_style("dark")
+  iris = load_iris()
+  data = pd.DataFrame(iris.data)
+  data = data.loc[:,2]
+
+  x_vers, y_vers = ecdf(data)
+
+  _ = plt.plot(x_vers, y_vers, marker=".", linestyle="none")
+
+  _ = plt.margins(0.02)
+
+  _ = plt.xlabel("Versicolor")
+
+  _ = plt.ylabel("ECDF")
+
+  _ = plt.show()
+#+END_SRC
+
+#+RESULTS:
+[[file:~/Dropbox/DataCamp/img/4.png]]
+
+**** Scatter Plots
+*** Quantitative EDAs
+**** Sample mean & median
+- np.mean(), affected by the outliers
+- np.median()
+**** Percentile, outliers and box plots
+- np.percentile(data, [25, 50, 75])
+- outliers: 2 IQR (interquartile range) from median, 1 IQR = Q3 - Q1
+
+#+BEGIN_SRC ipython :session :file ~/Dropbox/DataCamp/img/5.png  :exports both
+  # Define ECDF function
+  import numpy as np
+  def ecdf(data):
+
+      n = len(data)
+
+      x = np.sort(data)
+
+      y = np.arange(1, n+1) / n
+
+      return (x, y)
+
+  import pandas as pd
+  import matplotlib.pyplot as plt
+  import seaborn as sns
+  from sklearn.datasets import load_iris
+  %matplotlib inline
+
+  sns.set_style("dark")
+  iris = load_iris()
+  data = pd.DataFrame(iris.data)
+  data = data.loc[:,2]
+
+  x_vers, y_vers = ecdf(data)
+
+  _ = plt.plot(x_vers, y_vers, marker=".", linestyle="none")
+  _ = plt.margins(0.02)
+  _ = plt.xlabel("Versicolor")
+  _ = plt.ylabel("ECDF")
+
+  percentiles = np.array([2.5, 25, 50, 75, 97.5])
+  ptiles_vers = np.percentile(data, percentiles)
+
+  _ = plt.plot(ptiles_vers, percentiles/100, marker="D", color="red", linestyle="none")
+
+#  _1 = sns.boxplot(pd.DataFrame(iris.data))
+
+  plt.show()
+#+END_SRC
+
+#+RESULTS:
+[[file:~/Dropbox/DataCamp/img/5.png]]
+**** Variance and Standard Deviation
+- variance:
+  - np.var()
+  - the mean squared distance of the data from the mean
+  - a measure of the spread of data
+- standard deviation
+  - np.std()
+**** Covariance and Pearson Correlation
+- Covariance
+  - How two variables vary together
+  - np.cov(x, y)
+- Correlation
+  - variability due to codependence / independent variability
+  - np.corrcoef(x, y)
+**** Probabilistic logic and statistical inference
+- Bernoulli trials
+- Binomial distribution
+  - can think of a Bernoulli trial as a flip of a possibly biased coin. Specifically, each coin flip has a probability p of landing heads (success) and probability 1−p of landing tails (failure).
+  - np.random.binomial(num of trials, success rate, size = size)
+#+BEGIN_SRC ipython :session :file ~/Dropbox/DataCamp/img/binomial.png  :exports both
+  import numpy as np
+  import matplotlib.pyplot as plt
+  %matplotlib inline
+  import seaborn as sns
+
+  sns.set_style("dark")
+
+  sample = np.random.binomial(600, 0.1, size = 10000)
+  _ = plt.hist(sample)
+#+END_SRC
+
+#+RESULTS:
+[[file:~/Dropbox/DataCamp/img/binomial.png]]
+
+- Poisson
+  - Poisson distribution is a limit of the Binomial distribution for rare events.
+  - np.random.poisson()
+**** PDF and CDF
+**** Normal Distribution
+***** Normal PDF
+ #+BEGIN_SRC ipython :session :file ~/Dropbox/DataCamp/img/normal.png  :exports both
+   import numpy as np
+   import matplotlib.pyplot as plt
+   import seaborn as sns
+   %matplotlib inline
+
+   sns.set_style("dark")
+
+   samples_std1 = np.random.normal(20, 1, size=100000)
+   samples_std2 = np.random.normal(20, 3, size=100000)
+   samples_std3 = np.random.normal(20, 10, size=100000)
+
+   _ = plt.hist(samples_std1, normed=True, histtype='step', bins=100)
+   _ = plt.hist(samples_std2, normed=True, histtype='step', bins=100)
+   _ = plt.hist(samples_std3, normed=True, histtype='step', bins=100)
+   _ = plt.legend(["std = 1", "std = 3", "std = 10"])
+   plt.ylim(-0.01, 0.42)
+ #+END_SRC
+
+ #+RESULTS:
+ [[file:~/Dropbox/DataCamp/img/normal.png]]
+
+***** Normal CDF
+#+BEGIN_SRC ipython :session :file ~/Dropbox/DataCamp/img/normal_cdf.png  :exports both
+  import numpy as np
+  import matplotlib.pyplot as plt
+  import seaborn as sns
+  %matplotlib inline
+
+  sns.set_style("dark")
+
+  def ecdf(data):
+      n = len(data)
+      x = np.sort(data)
+      y = np.arange(1, n+1) / n
+      return (x, y)
+
+  samples_std1 = np.random.normal(20, 1, size=100000)
+  samples_std3 = np.random.normal(20, 3, size=100000)
+  samples_std10 = np.random.normal(20, 10, size=100000)
+
+  x_std1, y_std1 = ecdf(samples_std1)
+  x_std3, y_std3 = ecdf(samples_std3)
+  x_std10, y_std10 = ecdf(samples_std10)
+
+  _ = plt.plot(x_std1, y_std1, marker=".", linestyle="none")
+  _ = plt.plot(x_std3, y_std3, marker=".", linestyle="none")
+  _ = plt.plot(x_std10, y_std10, marker=".", linestyle="none")
+  _ = plt.margins(0.02)
+  _ = plt.legend(["std1", "std3", "std10"], loc="lower right")
+#+END_SRC
+
+#+RESULTS:
+[[file:~/Dropbox/DataCamp/img/normal_cdf.png]]
+
+***** Exponetial Distribution
+- sample data = np.random.exponential(mean, size=)
+- x, y = ecdf(real data)
+- x_theor, y_theor = ecdef(sample data)
+
+#+BEGIN_SRC ipython :session :file ~/Dropbox/DataCamp/img/exp.png  :exports both
+  import numpy as np
+  import matplotlib.pyplot as plt
+  import seaborn as sns
+  %matplotlib inline
+  sns.set_style("dark")
+
+  def ecdf(data):
+      n = len(data)
+      x = np.sort(data)
+      y = np.arange(1, n+1) / n
+      return (x, y)
+
+  samples = np.random.exponential(10, size=1000000)
+
+
+  x, y = ecdf(samples)
+
+  _ = plt.plot(x, y, marker=".", linestyle="none")
+  _ = plt.margins(0.02)
+#+END_SRC
+
+#+RESULTS:
+[[file:~/Dropbox/DataCamp/img/exp.png]]
+
+***** Waiting time of two Exponetial Distributions
+
+#+BEGIN_SRC ipython :session :file ~/Dropbox/DataCamp/img/exp-2.png  :exports both
+  import numpy as np
+  import matplotlib.pyplot as plt
+  import seaborn as sns
+  %matplotlib inline
+
+  sns.set_style("dark")
+
+  def successive_poisson(tau1, tau2, size=1):
+      t1 = np.random.exponential(tau1, size = size)
+
+      t2 = np.random.exponential(tau2, size = size)
+
+      return t1+t2
+
+  def ecdf(data):
+      n = len(data)
+      x = np.sort(data)
+      y = np.arange(1, n+1) / n
+      return (x, y)
+  
+  waiting_time = successive_poisson(764, 715, 1000000)
+
+  _ = plt.hist(waiting_time, normed=True, histtype="step", bins = np.sqrt(1000000))
+
+  x, y = ecdf(waiting_time)
+
+#  _ = plt.plot(x, y, marker=".", linestyle = "none")
+#+END_SRC
+
+#+RESULTS:
+[[file:~/Dropbox/DataCamp/img/exp-2.png]]
+
+*** Optimal Parameters
+**** Linear Regression by least squares
+ - slope
+ - intercept
+ - least squares with np.polyfit()
+   - slope, intercept = np.polyfit(x, y, degree of polynomial to fit)
+
+ #+BEGIN_SRC ipython :session :file ~/Dropbox/DataCamp/img/linReg.png :exports both
+   import numpy as np
+   import matplotlib.pyplot as plt
+   import seaborn as sns
+   %matplotlib inline
+
+   sns.set_style("dark")
+
+   x = np.random.normal(size=100)
+   y = np.random.normal(size=100)
+
+   _ = plt.plot(x, y, marker=".", linestyle="none")
+
+   a, b = np.polyfit(x, y, 1)
+
+   xl = np.array([-5,5])
+   yl = a * xl + b
+   _ = plt.plot(xl, yl)
+ #+END_SRC
+
+ #+RESULTS:
+ [[file:~/Dropbox/DataCamp/img/linReg.png]]
+
+**** Anscombe's quartet
+ - The importance of the EDA
+   - Look before leap
+
+*** Bootstrap confidence interval
+- Resampling engine:
+  - np.random.choice()
+#+BEGIN_SRC ipython :session :file  :exports both
+  import numpy as np
+  np.random.choice([1,2,3,4,5], size=4)
+#+END_SRC
+
+#+RESULTS:
+: array([3, 5, 4, 1])
+- Bootstrap replicate function
+
+#+BEGIN_SRC ipython :session :file  :exports both
+  def bootstrap_replicate_1d(data, func):
+      bs_sample = np.random.choice(data, len(data))
+      return func(bs_sample)
+#+END_SRC
+
+- Confidence interval of a statistic
+  - if we repeat measurements over and over again, p% of the observered values would lie within the p% confidence interval
+  - to get 95% confidence intervals
+    - two tails: conf_int = np.percentile(bs_replicate, [2.5, 97.5])
+
+*** Pairs bootstrap for linear Regression
+*** Formulating and Simulating Hypothesis
+*** Test statistics and p-value
+
+
+* Machine Learning
+* Deep Learning
+* Network Analysis

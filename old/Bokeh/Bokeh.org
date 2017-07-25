@@ -1,0 +1,53 @@
+#+TITLE: Interactive Data Visualization with Bokeh
+This is my study notes on Interactive Data Visualization with Bokeh from DataCamp
+Created by Bryan Van de Ven, a core Bokeh Developper
+* Basic Plotting With Bokeh
+** Plotting with Glyphs
+*** Glyphs are visual shapes to be drawn on the screen
+*** Typical Usage
+#+BEGIN_SRC python exports: both
+from bokeh.io import output_file, show
+from bokeh.plotting import figure
+plot = figure(plot_width=600, tools="pan, box_zoom")
+plot.circle([1,2,3,4,5],[8,9,5,2,3])
+output_file("glyphs.html")
+show(plot)
+#+END_SRC
+
+#+RESULTS:
+: None
+*** Glyph properties
+**** single fixed values(as shown in the above example)
+#+BEGIN_SRC python exports: both
+  from bokeh.io import output_file, show
+  from bokeh.plotting import figure
+  plot = figure()
+  plot.circle(x=10, y=[2,5,8,12], size = [10,20,30,40])
+  output_file("fixed_value.html")
+  show(plot)
+#+END_SRC
+
+#+RESULTS:
+: None
+**** lists, arrays, any sequences will do(tuples, dataframes etc.)
+*** Practices
+**** Use EEA fertility data
+#+BEGIN_SRC python
+  p = figure(x_axis_label="fertility", y_axis_label="female_literacy (% population)")
+  p.circle(x=fertility_latinamerica, y=female_literacy_latinamerica)
+  p.x(x=fertility_africa, y=female_literacy_africa)
+  output_file("fert_lit_separate.html")
+  show(p)
+#+END_SRC
+**** Plot customization
+***** color
+***** size
+***** alpha
+#+BEGIN_SRC python
+
+#+END_SRC
+**** 
+* Layouts, Interactions, and Annotations
+* High-Level Charts
+* Building Interactive apps with Bokeh
+* A Case Studyxsxs
